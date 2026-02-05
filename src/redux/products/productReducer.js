@@ -8,12 +8,12 @@ const nextId = (items) => {
 const productReducer = (state = initialState, action) => {
     switch (action.type) {
         case ADD_PRODUCT:
-            return [...state, { 
+            return [...state, {
                 id: nextId(state), // ส่ง state เข้าไปด้วยเพื่อให้คำนวณ id ใหม่ได้
-                ...action.payload, 
-                price: parseFloat(action.payload.price), 
-                quantity: parseInt(action.payload.quantity), 
-            }]; 
+                ...action.payload,
+                price: parseFloat(action.payload.price),
+                quantity: parseInt(action.payload.quantity),
+            }];
 
         case ADD_QUANTITY:
             return state.map((product) => { // ส่ง state เข้าไปด้วยเพื่อให้คำนวณ id ใหม่ได้
@@ -28,7 +28,7 @@ const productReducer = (state = initialState, action) => {
 
         case REMOVE_QUANTITY:
             return state.map((product) => {
-                if (product.id === action.payload.productId) {
+                if (product.id === action.payload) {
                     return {
                         ...product,
                         quantity: Math.max(0, product.quantity - 1), // ป้องกันไม่ให้ติดลบ เหมือนด้านบน แค่ -1

@@ -1,85 +1,63 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { ADD_TO_CART, REMOVE_FROM_CART, INCREASE_QUANTITY, DECREASE_QUANTITY } from "./actionTypes";
+import { initialState } from "./intialState";
 
-// Initial state สำหรับตะกร้าสินค้า
-const initialState = {
-    items: [], // รายการสินค้าในตะกร้า
-    totalQuantity: 0, // จำนวนสินค้าทั้งหมด
-    totalPrice: 0, // ราคารวมทั้งหมด
-};
+const nextId = (items) => {
+    return items.reduce((id, item) => Math.max(id, item.id), - 1) + 1;
+}
 
-// สร้าง slice สำหรับ cart
-const cartSlice = createSlice({
-    name: "cart",
-    initialState,
-    reducers: {
-        // เพิ่มสินค้าลงตะกร้า
-        addToCart: (state, action) => {
-            const newItem = action.payload;
-            const existingItem = state.items.find((item) => item.id === newItem.id);
 
-            if (existingItem) {
-                // ถ้ามีสินค้านี้อยู่แล้ว เพิ่มจำนวน
-                existingItem.quantity += 1;
-                existingItem.totalPrice += newItem.price;
-            } else {
-                // ถ้าไม่มี เพิ่มสินค้าใหม่
-                state.items.push({
-                    id: newItem.id,
-                    name: newItem.name,
-                    price: newItem.price,
-                    imageUrl: newItem.imageUrl,
-                    category: newItem.category,
-                    quantity: 1,
-                    totalPrice: newItem.price,
+
+// หา state find product ใน state
+const findProductInCart = (state, action) => {
+    return state.find((product) => product.id === action.payload.id);
+}
+
+const cartReducer = (state = initialState, action) => {
+    switch (action.type) {
+        case ADD_TO_CART:
+            const product = findProductInCart(state, action);
+            if (product) {
+                return state.map((p) => {
+                    if (p.id === product.id) {
+                        return { ...p, quantity: p.quantity + 1 };
+                    } else {
+                        return p;
+                    }
                 });
+            } else {
+                return [
+                    ...state,
+                    {
+                        ...action.payload,
+                        quantity: 1,
+                    }
+                ];
             }
 
-            state.totalQuantity += 1;
-            state.totalPrice += newItem.price;
-        },
+        case REMOVE_FROM_CART:
+            return state.filter((product) => product.id != action.payload);
 
-        // ลบสินค้าออกจากตะกร้า
-        removeFromCart: (state, action) => {
-            const id = action.payload;
-            const existingItem = state.items.find((item) => item.id === id);
-
-            if (existingItem) {
-                state.totalQuantity -= existingItem.quantity;
-                state.totalPrice -= existingItem.totalPrice;
-                state.items = state.items.filter((item) => item.id !== id);
-            }
-        },
-
-        // ลดจำนวนสินค้า
-        decreaseQuantity: (state, action) => {
-            const id = action.payload;
-            const existingItem = state.items.find((item) => item.id === id);
-
-            if (existingItem) {
-                if (existingItem.quantity === 1) {
-                    // ถ้าเหลือ 1 ชิ้น ให้ลบออกเลย
-                    state.items = state.items.filter((item) => item.id !== id);
+        case INCREASE_QUANTITY:
+            return state.map((product) => {
+                if (product.id === action.payload) {
+                    return { ...product, quantity: product.quantity + 1 };
                 } else {
-                    existingItem.quantity -= 1;
-                    existingItem.totalPrice -= existingItem.price;
+                    return product;
                 }
-                state.totalQuantity -= 1;
-                state.totalPrice -= existingItem.price;
-            }
-        },
+            });
 
-        // ล้างตะกร้าทั้งหมด
-        clearCart: (state) => {
-            state.items = [];
-            state.totalQuantity = 0;
-            state.totalPrice = 0;
-        },
-    },
-});
+        case DECREASE_QUANTITY:
+            return state.map((product) => {
+                if (product.id === action.payload) {
+                    return { ...product, quantity: product.quantity - 1 };
+                } else {
+                    return product;
+                }
+            });
 
-// Export actions สำหรับใช้ใน components
-export const { addToCart, removeFromCart, decreaseQuantity, clearCart } =
-    cartSlice.actions;
+        default:
+            return state;
 
-// Export reducer สำหรับ store
-export default cartSlice.reducer;
+    }
+}
+export default cartReducer;

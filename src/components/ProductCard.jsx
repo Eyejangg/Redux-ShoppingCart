@@ -1,8 +1,19 @@
 import React from "react";
+import { useDispatch } from "react-redux";
+import { addToCart, decreaseQuantity, increaseQuantity } from "../redux/carts/action";
+import { removeQuanity } from "../redux/products/action";
 
 const ProductCard = ({ product }) => {
   const { name, category, imageUrl, price, quantity } = product;
-  
+  const dispatch = useDispatch(); // ใช้ useDispatch ในการ dispatch action ขึ้น
+  const handleAddToCart = () => {
+    dispatch(addToCart(product)); // dispatch action addToCart นำเข้า Cart ตรงปุ่ม
+    dispatch(removeQuanity(product.id)); // dispatch action removeQuanity นำออก
+
+    // product คือ สินค้าทั้งชิ้น
+    // product.id คือ เลขของสินค้านั้นๆ
+  }
+
   return (
     <div className="max-w-xs bg-[#1e252e] text-white rounded-xl overflow-hidden shadow-lg font-sans">
       {/* Product Image Section */}
@@ -32,7 +43,8 @@ const ProductCard = ({ product }) => {
         </div>
 
         {/* Action Button */}
-        <button className="w-fit mt-2 bg-[#7c83fd] hover:bg-[#6b72ed] text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200">
+        <button className="w-fit mt-2 bg-[#7c83fd] hover:bg-[#6b72ed] text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200"
+          onClick={handleAddToCart}>
           Buy Now
         </button>
       </div>

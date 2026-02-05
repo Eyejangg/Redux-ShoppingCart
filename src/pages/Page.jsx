@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import MyCart from "../components/MyCart.jsx";
+import MyCart from "./MyCart.jsx";
 import Home from "./Home.jsx";
 
 const Page = () => {
